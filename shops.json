@@ -1,5 +1,5 @@
 {
-  "_note": "Regole: il titolo del prodotto deve contenere TUTTE le parole di must_include e ALMENO UNA di any_of (se presente), nessuna di exclude. max_price = prezzo massimo per l'avviso 'sotto soglia'. alert_restock = avvisa quando torna disponibile anche sopra soglia. alert_new = avvisa per ogni nuovo prodotto (per i drop di esclusive). any_of_2 = secondo gruppo: serve almeno una parola anche da questo.",
+  "_note": "Regole: il titolo del prodotto deve contenere TUTTE le parole di must_include e ALMENO UNA di any_of (se presente), nessuna di exclude. max_price = prezzo massimo per l'avviso 'sotto soglia'. alert_restock = avvisa quando torna disponibile anche sopra soglia. alert_new = avvisa per ogni nuovo prodotto (per i drop di esclusive). any_of_2 = secondo gruppo: serve almeno una parola anche da questo. box_only (default true) = considera solo box/confezioni, non carte singole.",
   "max_pages": 8,
   "global_exclude": [
     "sleeve",
@@ -69,7 +69,8 @@
         "singola"
       ],
       "alert_new": true,
-      "alert_restock": true
+      "alert_restock": true,
+      "box_only": false
     },
     {
       "name": "Topps Chrome F1 2026 Hobby",
@@ -148,7 +149,7 @@
         "case",
         "hobby"
       ],
-      "max_price": 45,
+      "max_price": 40,
       "alert_restock": true,
       "any_of_2": [
         "blaster",
@@ -171,7 +172,7 @@
         "2023",
         "case"
       ],
-      "max_price": 22,
+      "max_price": 19,
       "alert_restock": true,
       "any_of_2": [
         "2025",
@@ -204,9 +205,10 @@
       "max_price": 100
     },
     {
-      "name": "Topps Merlin UCC",
+      "name": "Topps Merlin UCC Hobby",
       "must_include": [
-        "merlin"
+        "merlin",
+        "hobby"
       ],
       "exclude": [
         "case",
@@ -215,6 +217,23 @@
       ],
       "max_price": 120,
       "alert_restock": true
+    },
+    {
+      "name": "Topps Merlin UCC Blaster",
+      "must_include": [
+        "merlin"
+      ],
+      "any_of": [
+        "blaster",
+        "value"
+      ],
+      "exclude": [
+        "case",
+        "2023",
+        "2022",
+        "hobby"
+      ],
+      "max_price": 35
     },
     {
       "name": "Topps Chrome Black NBA 2025-26",
@@ -233,7 +252,7 @@
       "alert_restock": true
     },
     {
-      "name": "Topps NBA 2025-26",
+      "name": "Topps NBA 2025-26 Mega/Retail",
       "must_include": [
         "topps"
       ],
@@ -245,24 +264,41 @@
         "case",
         "black"
       ],
-      "max_price": 70,
+      "max_price": 55,
       "any_of_2": [
-        "2025",
-        "25/26",
-        "25-26"
+        "mega",
+        "retail",
+        "fat pack"
       ]
     },
     {
-      "name": "Topps Chrome Tennis 2026",
+      "name": "Topps Chrome Tennis 2026 Hobby",
       "must_include": [
         "tennis",
-        "2026"
+        "2026",
+        "hobby"
       ],
       "exclude": [
         "case"
       ],
       "max_price": 160,
       "alert_restock": true
+    },
+    {
+      "name": "Topps Chrome Tennis 2026 Blaster/Value",
+      "must_include": [
+        "tennis",
+        "2026"
+      ],
+      "any_of": [
+        "blaster",
+        "value"
+      ],
+      "exclude": [
+        "case",
+        "hobby"
+      ],
+      "max_price": 30
     },
     {
       "name": "Panini Obsidian Soccer",

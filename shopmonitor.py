@@ -48,8 +48,13 @@ def fetch_catalog(base, max_pages):
     return products
 
 
+BOX_WORDS = ["box", "blaster", "hanger", "mega", "tin", "display", "hobby", "jumbo", "fat pack", "value", "case"]
+
+
 def match(title, rule, global_exclude):
     low = title.lower()
+    if rule.get("box_only", True) and not any(w in low for w in BOX_WORDS):
+        return False  # salta le carte singole
     if any(w.lower() in low for w in global_exclude + rule.get("exclude", [])):
         return False
     for key in ("any_of", "any_of_2"):
