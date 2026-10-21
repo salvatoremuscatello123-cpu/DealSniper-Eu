@@ -33,12 +33,14 @@ def fetch_catalog(base, max_pages):
     for page in range(1, max_pages + 1):
         try:
             data = get_json(f"{base.rstrip('/')}/products.json?limit=250&page={page}")
-        except (urllib.error.HTTPError, urllib.error.URLError, json.JSONDecodeError, TimeoutError) as e:
+        except Exception as e:  # qualsiasi problema di rete o formato: salta il negozio
             if page == 1:
                 print(f"[!] {base}: non leggibile ({e})", file=sys.stderr)
                 return None
             break
-        batch = data.get("products", [])
+        batch = data.get("products", []) if isinstance(data, dict) else []
+        if page == 1 and not isinstance(data, dict):
+            return None
         products.extend(batch)
         if len(batch) < 250:
             break
@@ -69,7 +71,12 @@ def tg(token, chat_id, text, dry):
                                    "disable_web_page_preview": "true"}).encode()
     req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=body,
                                  headers={"Content-Type": "application/x-www-form-urlencoded"})
-    urllib.request.urlopen(req, timeout=30).read()
+    try:
+        urllib.request.urlopen(req, timeout=30).read()
+    except urllib.error.HTTPError as e:
+        print(f"[!] Telegram: HTTP {e.code} {e.read()[:300]!r}", file=sys.stderr)
+    except Exception as e:
+        print(f"[!] Telegram: {e}", file=sys.stderr)
     time.sleep(1)
 
 
@@ -79,7 +86,7 @@ def chat_id_from_updates(token):
         msg = upd.get("message") or upd.get("channel_post")
         if msg:
             return str(msg["chat"]["id"])
-    raise SystemExit("Scrivi 'ciao' al bot su Telegram e riprova.")
+    raise SystemExit("ERRORE: non trovo la chat. Scrivi 'ciao' al bot su Telegram e rilancia (oppure aggiungi il secret TELEGRAM_CHAT_ID).")
 
 
 def main():
@@ -101,7 +108,11 @@ def main():
         name, base = shop["name"], shop["url"]
         if shop_status.get(base) == "not_shopify" and not first_run:
             continue
-        catalog = fetch_catalog(base, cfg.get("max_pages", 8))
+        try:
+            catalog = fetch_catalog(base, cfg.get("max_pages", 8))
+        except Exception as e:
+            print(f"[!] {name}: {e}", file=sys.stderr)
+            catalog = None
         if catalog is None:
             shop_status[base] = "not_shopify"
             report.append(f"❌ {name}: non leggibile (non è Shopify o blocca l'accesso)")
