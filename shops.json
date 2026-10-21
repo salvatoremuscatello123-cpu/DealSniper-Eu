@@ -1,0 +1,295 @@
+{
+  "_note": "Regole: il titolo del prodotto deve contenere TUTTE le parole di must_include e ALMENO UNA di any_of (se presente), nessuna di exclude. max_price = prezzo massimo per l'avviso 'sotto soglia'. alert_restock = avvisa quando torna disponibile anche sopra soglia. alert_new = avvisa per ogni nuovo prodotto (per i drop di esclusive). any_of_2 = secondo gruppo: serve almeno una parola anche da questo.",
+  "max_pages": 8,
+  "global_exclude": [
+    "sleeve",
+    "toploader",
+    "binder",
+    "raccoglitore",
+    "bustine protettive",
+    "one touch",
+    "magnetic",
+    "album",
+    "figurine"
+  ],
+  "shops": [
+    {
+      "name": "Topps Italia",
+      "url": "https://it.topps.com"
+    },
+    {
+      "name": "Il Covo del Nerd",
+      "url": "https://www.ilcovodelnerd.com"
+    },
+    {
+      "name": "SportyCards",
+      "url": "https://sportycards.it"
+    },
+    {
+      "name": "ScCards",
+      "url": "https://sccards.it"
+    },
+    {
+      "name": "Stickerpoint",
+      "url": "https://www.stickerpoint.it"
+    },
+    {
+      "name": "BreakYourCards",
+      "url": "https://www.breakyourcards.it"
+    },
+    {
+      "name": "Q's Cards",
+      "url": "https://qscards.com"
+    },
+    {
+      "name": "TAASS",
+      "url": "https://www.taass.com"
+    },
+    {
+      "name": "Trace 'n Chase",
+      "url": "https://tracenchase.com"
+    },
+    {
+      "name": "ShopUScards",
+      "url": "https://shopuscards.eu"
+    }
+  ],
+  "rules": [
+    {
+      "name": "Esclusive Topps (Gold / Showtime / Sapphire / Now)",
+      "any_of": [
+        "topps gold",
+        "showtime",
+        "sapphire",
+        "topps now",
+        "printed to order"
+      ],
+      "exclude": [
+        "single",
+        "singola"
+      ],
+      "alert_new": true,
+      "alert_restock": true
+    },
+    {
+      "name": "Topps Chrome F1 2026 Hobby",
+      "must_include": [
+        "chrome",
+        "2026",
+        "hobby"
+      ],
+      "any_of": [
+        "f1",
+        "formula"
+      ],
+      "exclude": [
+        "lite",
+        "mega",
+        "value",
+        "blaster",
+        "case"
+      ],
+      "max_price": 560,
+      "alert_restock": true
+    },
+    {
+      "name": "Topps Chrome F1 2026 Mega",
+      "must_include": [
+        "chrome",
+        "2026",
+        "mega"
+      ],
+      "any_of": [
+        "f1",
+        "formula"
+      ],
+      "max_price": 170
+    },
+    {
+      "name": "Topps Chrome UCC 2025-26 Hobby",
+      "must_include": [
+        "chrome",
+        "hobby"
+      ],
+      "any_of": [
+        "ucc",
+        "uefa",
+        "club competitions"
+      ],
+      "exclude": [
+        "2024",
+        "2023",
+        "case",
+        "lite",
+        "jumbo",
+        "sapphire"
+      ],
+      "max_price": 200,
+      "alert_restock": true,
+      "any_of_2": [
+        "2025",
+        "25/26",
+        "25-26"
+      ]
+    },
+    {
+      "name": "Topps Chrome UCC 2025-26 Value/Blaster",
+      "must_include": [
+        "chrome"
+      ],
+      "any_of": [
+        "ucc",
+        "uefa",
+        "club competitions"
+      ],
+      "exclude": [
+        "2024",
+        "2023",
+        "case",
+        "hobby"
+      ],
+      "max_price": 45,
+      "alert_restock": true,
+      "any_of_2": [
+        "blaster",
+        "value"
+      ]
+    },
+    {
+      "name": "Topps Chrome UCC 2025-26 Hanger",
+      "must_include": [
+        "chrome",
+        "hanger"
+      ],
+      "any_of": [
+        "ucc",
+        "uefa",
+        "club competitions"
+      ],
+      "exclude": [
+        "2024",
+        "2023",
+        "case"
+      ],
+      "max_price": 22,
+      "alert_restock": true,
+      "any_of_2": [
+        "2025",
+        "25/26",
+        "25-26"
+      ]
+    },
+    {
+      "name": "Topps UCC Flagship 2025-26 Hobby",
+      "must_include": [
+        "hobby"
+      ],
+      "any_of": [
+        "ucc",
+        "uefa",
+        "club competitions"
+      ],
+      "exclude": [
+        "chrome",
+        "gold",
+        "merlin",
+        "finest",
+        "museum",
+        "inception",
+        "showtime",
+        "2024",
+        "2023",
+        "case"
+      ],
+      "max_price": 100
+    },
+    {
+      "name": "Topps Merlin UCC",
+      "must_include": [
+        "merlin"
+      ],
+      "exclude": [
+        "case",
+        "2023",
+        "2022"
+      ],
+      "max_price": 120,
+      "alert_restock": true
+    },
+    {
+      "name": "Topps Chrome Black NBA 2025-26",
+      "must_include": [
+        "chrome",
+        "black"
+      ],
+      "any_of": [
+        "nba",
+        "basketball"
+      ],
+      "exclude": [
+        "case"
+      ],
+      "max_price": 370,
+      "alert_restock": true
+    },
+    {
+      "name": "Topps NBA 2025-26",
+      "must_include": [
+        "topps"
+      ],
+      "any_of": [
+        "nba",
+        "basketball"
+      ],
+      "exclude": [
+        "case",
+        "black"
+      ],
+      "max_price": 70,
+      "any_of_2": [
+        "2025",
+        "25/26",
+        "25-26"
+      ]
+    },
+    {
+      "name": "Topps Chrome Tennis 2026",
+      "must_include": [
+        "tennis",
+        "2026"
+      ],
+      "exclude": [
+        "case"
+      ],
+      "max_price": 160,
+      "alert_restock": true
+    },
+    {
+      "name": "Panini Obsidian Soccer",
+      "must_include": [
+        "obsidian"
+      ],
+      "any_of": [
+        "soccer",
+        "calcio",
+        "fifa"
+      ],
+      "exclude": [
+        "case"
+      ],
+      "max_price": 400
+    },
+    {
+      "name": "Topps Premier League Gold",
+      "must_include": [
+        "gold",
+        "premier"
+      ],
+      "exclude": [
+        "case"
+      ],
+      "max_price": 249,
+      "alert_restock": true
+    }
+  ]
+}
