@@ -1,0 +1,258 @@
+{
+  "_note": "value_eur = valore di mercato EUROPEO consegnato in Italia. Avviso se prezzo+spedizione <= value_eur*(1-threshold). hot=true -> controllato anche nel giro veloce.",
+  "threshold": 0.2,
+  "marketplaces": [
+    "EBAY_IT",
+    "EBAY_DE"
+  ],
+  "delivery_country": "IT",
+  "delivery_zip": "20100",
+  "default_shipping_eur": 10,
+  "results_per_search": 50,
+  "auction_max_hours_left": 24,
+  "global_exclude": [
+    "leer",
+    "empty",
+    "vuota",
+    "vuoto",
+    "repack",
+    "mystery",
+    "break",
+    "spot",
+    "rip & ship",
+    "rip and ship",
+    "hobby lite",
+    " lite box",
+    "box only",
+    "nur box",
+    "solo scatola",
+    "opened",
+    "geöffnet",
+    "aperto",
+    "aperta",
+    "proxy",
+    "custom",
+    "replica"
+  ],
+  "products": [
+    {
+      "name": "Topps Chrome F1 2026 Hobby",
+      "query": "topps chrome formula 1 2026 hobby box",
+      "must_include": [
+        "2026",
+        "hobby"
+      ],
+      "exclude": [
+        "mega",
+        "value",
+        "blaster",
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne",
+        "packung",
+        "bustina"
+      ],
+      "value_eur": 620,
+      "hot": true
+    },
+    {
+      "name": "Topps Chrome UCC 2025-26 Hobby",
+      "query": "topps chrome uefa club competitions 2025 26 hobby box",
+      "must_include": [
+        "hobby"
+      ],
+      "exclude": [
+        "value",
+        "blaster",
+        "hanger",
+        "mega",
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne",
+        "bustina",
+        "jumbo"
+      ],
+      "value_eur": 200,
+      "hot": true
+    },
+    {
+      "name": "Topps Chrome Black NBA 2025-26 Hobby",
+      "query": "topps chrome black basketball 2025 26 hobby box",
+      "must_include": [
+        "black",
+        "hobby"
+      ],
+      "exclude": [
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne",
+        "bustina"
+      ],
+      "value_eur": 400,
+      "hot": true
+    },
+    {
+      "name": "Topps Gold UCC 2025-26 Hobby",
+      "query": "topps gold uefa club competitions 2025 26 hobby box",
+      "must_include": [
+        "gold",
+        "hobby"
+      ],
+      "exclude": [
+        "premier",
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne"
+      ],
+      "value_eur": 250
+    },
+    {
+      "name": "Topps UCC Flagship 2025-26 Hobby",
+      "query": "topps uefa club competitions 2025 26 hobby box",
+      "must_include": [
+        "hobby"
+      ],
+      "exclude": [
+        "chrome",
+        "gold",
+        "merlin",
+        "finest",
+        "value",
+        "blaster",
+        "mega",
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne"
+      ],
+      "value_eur": 100
+    },
+    {
+      "name": "Topps Gold Premier League 2025-26 Hobby",
+      "query": "topps gold premier league 2025 26 hobby box",
+      "must_include": [
+        "gold",
+        "hobby"
+      ],
+      "exclude": [
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne"
+      ],
+      "value_eur": 249
+    },
+    {
+      "name": "Topps UCC Showtime 2024-25",
+      "query": "topps showtime uefa 2024 25 box",
+      "must_include": [
+        "showtime"
+      ],
+      "exclude": [
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne"
+      ],
+      "value_eur": 70
+    },
+    {
+      "name": "Panini Obsidian Soccer 2025-26 Hobby",
+      "query": "panini obsidian soccer 2025 26 hobby box",
+      "must_include": [
+        "obsidian",
+        "hobby"
+      ],
+      "exclude": [
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne"
+      ],
+      "value_eur": 400
+    },
+    {
+      "name": "Topps Chrome UCC 2025-26 Value/Blaster",
+      "query": "topps chrome uefa 2025 26 value box",
+      "must_include": [
+        "chrome"
+      ],
+      "exclude": [
+        "hobby",
+        "hanger",
+        "single pack",
+        "1 pack",
+        "1x pack",
+        "booster pack",
+        "einzelne"
+      ],
+      "value_eur": 45
+    },
+    {
+      "name": "Topps Chrome F1 2026 Mega Box",
+      "query": "topps chrome formula 1 2026 mega box",
+      "must_include": [
+        "mega"
+      ],
+      "exclude": [
+        "hobby"
+      ],
+      "value_eur": 180
+    },
+    {
+      "name": "Topps Chrome F1 2021 Hobby",
+      "query": "topps chrome formula 1 2021 hobby box",
+      "must_include": [
+        "2021",
+        "hobby"
+      ],
+      "value_eur": 330
+    },
+    {
+      "name": "Topps Chrome F1 2022 Hobby",
+      "query": "topps chrome formula 1 2022 hobby box",
+      "must_include": [
+        "2022",
+        "hobby"
+      ],
+      "value_eur": 290
+    },
+    {
+      "name": "Topps Chrome Tennis 2026 Hobby",
+      "query": "topps chrome tennis 2026 hobby box",
+      "must_include": [
+        "tennis",
+        "hobby"
+      ],
+      "exclude": [
+        "value",
+        "blaster"
+      ],
+      "value_eur": 160
+    },
+    {
+      "name": "Topps NBA 2025-26 Mega Box",
+      "query": "topps basketball 2025 26 mega box",
+      "must_include": [
+        "mega"
+      ],
+      "exclude": [
+        "chrome",
+        "hobby"
+      ],
+      "value_eur": 60
+    }
+  ]
+}
