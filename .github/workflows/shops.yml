@@ -1,0 +1,41 @@
+name: Monitor negozi
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: shopmonitor
+  cancel-in-progress: false
+
+jobs:
+  shops:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ripristina stato negozi
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: shops-${{ github.run_id }}
+          restore-keys: shops-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Controlla negozi
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python shopmonitor.py
+
+      - name: Salva stato negozi
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: shops-${{ github.run_id }}
