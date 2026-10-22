@@ -50,6 +50,7 @@ def fetch_catalog(base, max_pages):
 
 
 BOX_WORDS = ["box", "boxes", "blaster", "hanger", "mega", "tin", "display", "hobby", "jumbo", "fat pack", "value", "case"]
+PACK_RE = re.compile(r"\bpacks?\b|\bpackung\b|\bbustin[ae]\b|\bbooster\b|\bsingle\b|\bsingolo\b|\beinzel")
 SINGLE_HINTS = re.compile(r"\b\d{1,3}/\d{1,4}\b|(?<!\d)/\d{1,4}\b|\bauto(graph)?\b|\bpsa\b|\bbgs\b|\bcgc\b|\bsgc\b|\brookie\b|\brc\b|#|\brefractor\b|\bparallel\b|\bvariation\b|\binsert\b|\bpatch\b|\brelic\b|\bsingle card\b|\bcarta singola\b")
 
 
@@ -147,6 +148,11 @@ def main():
                 variants[vid] = {"a": avail, "p": price, "t": time.time()}
                 vtitle = title if v.get("title") in (None, "Default Title") else f"{title} – {v['title']}"
                 max_price = rule.get("max_price")
+                vname = (v.get("title") or "").lower()
+                if rule.get("box_only", True) and PACK_RE.search(vname) and not re.search(r"\bbox\b|\bdisplay\b|\bcase\b", vname):
+                    continue  # variante "singolo pacchetto" di un box: non confrontarla col prezzo del box
+                if max_price is not None and price < max_price * cfg.get("min_price_ratio", 0.35):
+                    continue  # prezzo troppo basso per essere il box: quasi certamente un pacchetto o una carta
                 cheap = max_price is not None and price <= max_price
                 reason = None
                 if old is None:
@@ -167,13 +173,14 @@ def main():
 
     if first_run:
         tg(token, chat_id, "🛒 <b>Monitor negozi attivo</b>\n" + "\n".join(esc(r) for r in report) +
-           f"\nDisponibili sotto soglia adesso: {len(alerts)}" + (" (ti mando i primi 10)" if len(alerts) > 10 else ""), dry)
-        alerts = alerts[:10]
+           f"\nDisponibili sotto soglia adesso: {len(alerts)}", dry)
     max_alerts = cfg.get("max_alerts_per_run", 8)
     if not first_run and new_shops:
         tg(token, chat_id, "➕ Negozi aggiunti al monitor: " + ", ".join(esc(n) for n in new_shops), dry)
-    extra = len(alerts) - max_alerts
-    alerts = alerts[:max_alerts]
+    extra = 0
+    if max_alerts:  # 0 = nessun limite
+        extra = len(alerts) - max_alerts
+        alerts = alerts[:max_alerts]
     for rname, reason, shop, title, price, maxp, url in alerts:
         soglia = f" · soglia {maxp:.0f} €" if maxp is not None else ""
         tg(token, chat_id, f"{reason} — <b>{esc(rname)}</b>\n🏪 {esc(shop)}\n{esc(title)}\n💶 <b>{price:.2f} €</b>{soglia}\n{url}", dry)

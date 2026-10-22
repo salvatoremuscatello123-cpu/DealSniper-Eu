@@ -1,5 +1,5 @@
 {
-  "_note": "Regole: il titolo del prodotto deve contenere TUTTE le parole di must_include e ALMENO UNA di any_of (se presente), nessuna di exclude. max_price = prezzo massimo per l'avviso 'sotto soglia'. alert_restock = avvisa quando torna disponibile anche sopra soglia. alert_new = avvisa per ogni nuovo prodotto (per i drop di esclusive). any_of_2 = secondo gruppo: serve almeno una parola anche da questo. box_only (default true) = considera solo box/confezioni, non carte singole.",
+  "_note": "Regole: il titolo del prodotto deve contenere TUTTE le parole di must_include e ALMENO UNA di any_of (se presente), nessuna di exclude. max_price = prezzo massimo per l'avviso 'sotto soglia'. alert_restock = avvisa quando torna disponibile anche sopra soglia. alert_new = avvisa per ogni nuovo prodotto (per i drop di esclusive). any_of_2 = secondo gruppo: serve almeno una parola anche da questo. box_only (default true) = considera solo box/confezioni, non carte singole. max_alerts_per_run: 0 = nessun limite.",
   "max_pages": 8,
   "global_exclude": [
     "sleeve",
@@ -346,5 +346,5 @@
       "alert_restock": true
     }
   ],
-  "max_alerts_per_run": 8
+  "max_alerts_per_run": 0
 }
