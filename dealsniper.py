@@ -200,22 +200,21 @@ def load_market():
 
 
 def compute_market(token, product, cfg):
-    """Valore di mercato EU = mediana (senza estremi) dei Compralo Subito attivi, prezzo + spedizione, venditori UE."""
+    """Valore di mercato EU = media dei N Compralo Subito più economici (prezzo + spedizione, venditori UE).
+    Riferimento 'competitivo': il prezzo a cui dovresti vendere per essere tra i più bassi."""
     totals = []
+    floor = product["value_eur"] * cfg.get("min_price_ratio", 0.35) if not product.get("value_guess") else 0
     for mkt in cfg["marketplaces"]:
-        for item in search(token, mkt, product, None, cfg, buying="FIXED_PRICE", sort=None, limit=100):
+        for item in search(token, mkt, product, None, cfg, buying="FIXED_PRICE", sort="price", limit=100):
             parsed = parse(item, product, cfg)
-            if parsed:
+            if parsed and parsed[6] >= floor:  # scarta pacchetti/carte finiti tra i risultati
                 totals.append(parsed[6])
     totals.sort()
     n = len(totals)
     if n < cfg.get("market_min_listings", 5):
         return None, n
-    cut = n // 10
-    core = totals[cut:n - cut] or totals
-    mid = len(core) // 2
-    median = core[mid] if len(core) % 2 else (core[mid - 1] + core[mid]) / 2
-    return round(median, 2), n
+    lowest = totals[:cfg.get("market_lowest_n", 10)]
+    return round(sum(lowest) / len(lowest), 2), n
 
 
 def fmt(d):
@@ -298,6 +297,9 @@ def main():
     market = load_market()
     refresh_h = cfg.get("market_refresh_hours", 6)
     changes = []
+    method = f"lowest{cfg.get('market_lowest_n', 10)}"
+    if market.get("_method") != method:
+        market = {}  # metodo di calcolo cambiato: ricalcola subito tutto
     if cfg.get("auto_value", True) and time.time() - market.get("_ts", 0) > refresh_h * 3600:
         for p in [p for p in cfg["products"] if p.get("enabled", True)]:
             val, n = compute_market(token, p, cfg)
@@ -313,6 +315,7 @@ def main():
             print(f"Mercato {p['name']}: {val} da {n} annunci")
         had_market = "_ts" in market
         market["_ts"] = time.time()
+        market["_method"] = method
         if not dry:
             os.makedirs(os.path.dirname(MARKET), exist_ok=True)
             with open(MARKET, "w") as f:
@@ -321,7 +324,7 @@ def main():
             lines = [f"• {p['name']}: <b>{market[p['name']]['value']:.0f} €</b> ({market[p['name']]['n']} annunci)"
                      if p["name"] in market else f"• {p['name']}: {p['value_eur']:.0f} € (manuale, pochi annunci)"
                      for p in cfg["products"] if p.get("enabled", True)]
-            telegram_send(tg_token, chat_id, "📊 <b>Valori di mercato EU calcolati</b> (mediana Compralo Subito IT+DE, spedizione inclusa)\n" + "\n".join(lines))
+            telegram_send(tg_token, chat_id, "📊 <b>Valori di mercato EU calcolati</b> (media dei 10 Compralo Subito UE più economici, spedizione inclusa)\n" + "\n".join(lines))
         elif changes and tg_token and not dry:
             telegram_send(tg_token, chat_id, "📊 <b>Valori di mercato aggiornati</b>\n" + "\n".join(changes))
 

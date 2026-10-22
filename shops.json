@@ -608,5 +608,5 @@
     }
   ],
   "max_alerts_per_run": 0,
-  "market_threshold": 0.1
+  "market_threshold": 0.05
 }

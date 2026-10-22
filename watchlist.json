@@ -1,6 +1,6 @@
 {
-  "_note": "value_eur = valore di mercato EUROPEO consegnato in Italia. Avviso se prezzo+spedizione <= value_eur*(1-threshold). hot=true -> controllato anche nel giro veloce. auto_value=true: il valore viene ricalcolato ogni market_refresh_hours ore come mediana dei Compralo Subito UE attivi (spedizione inclusa, esclusi gli estremi); value_eur resta come riserva se ci sono meno di market_min_listings annunci, e come limite di sicurezza (il valore automatico resta tra 0,4x e 2x). marketplaces = tutti i siti eBay UE usati per il valore di mercato; a ogni giro si cercano le occasioni su marketplaces_always + un sito a rotazione degli altri. value_guess=true: valore manuale solo indicativo; il prodotto genera avvisi SOLO quando c'è un valore di mercato calcolato (>= market_min_listings annunci). Gli 'hot' sono cercati anche sul sito eBay UE a rotazione.",
-  "threshold": 0.2,
+  "_note": "value_eur = valore di mercato EUROPEO consegnato in Italia. Avviso se prezzo+spedizione <= value_eur*(1-threshold). hot=true -> controllato anche nel giro veloce. auto_value=true: il valore viene ricalcolato ogni market_refresh_hours ore come media dei market_lowest_n Compralo Subito UE più economici (spedizione inclusa); value_eur resta come riserva se ci sono meno di market_min_listings annunci, e come limite di sicurezza (il valore automatico resta tra 0,4x e 2x). marketplaces = tutti i siti eBay UE usati per il valore di mercato; a ogni giro si cercano le occasioni su marketplaces_always + un sito a rotazione degli altri. value_guess=true: valore manuale solo indicativo; il prodotto genera avvisi SOLO quando c'è un valore di mercato calcolato (>= market_min_listings annunci). Gli 'hot' sono cercati anche sul sito eBay UE a rotazione.",
+  "threshold": 0.1,
   "marketplaces": [
     "EBAY_IT",
     "EBAY_DE",
@@ -684,5 +684,6 @@
   "min_price_ratio": 0.35,
   "marketplaces_always": [
     "EBAY_IT"
-  ]
+  ],
+  "market_lowest_n": 10
 }
