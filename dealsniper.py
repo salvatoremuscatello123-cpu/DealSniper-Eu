@@ -336,6 +336,8 @@ def main():
         info = market.get(p["name"]) if cfg.get("auto_value", True) else None
         if not info and p.get("value_guess"):
             continue  # valore solo stimato: niente avvisi finché il mercato non è calcolato
+        if int(time.time() // 900) % p.get("every", 1):
+            continue  # prodotto controllato solo un giro ogni "every" (risparmia chiamate eBay)
         value = info["value"] if info else p["value_eur"]
         src = f"mercato, {info['n']} annunci" if info else "manuale"
         max_total = value * (1 - p.get("threshold", cfg["threshold"]))
@@ -365,6 +367,36 @@ def main():
             time.sleep(1)
     if not dry:
         save_state(seen)
+        heartbeat(tg_token, chat_id, calls, len(found))
+
+
+def heartbeat(tg_token, chat_id, calls, n_found):
+    """Una volta al giorno (dopo le 9 ora italiana) manda un riepilogo, così sai che il bot gira anche senza occasioni."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    path = os.path.join(HERE, "state", "heartbeat.json")
+    try:
+        with open(path) as f:
+            hb = json.load(f)
+    except Exception:
+        hb = {}
+    now = datetime.now(ZoneInfo("Europe/Rome"))
+    today = now.strftime("%Y-%m-%d")
+    hb.setdefault("since", now.strftime("%d/%m %H:%M"))
+    hb["runs"] = hb.get("runs", 0) + 1
+    hb["calls"] = hb.get("calls", 0) + calls
+    hb["alerts"] = hb.get("alerts", 0) + n_found
+    if hb.get("sent") != today and now.hour >= 9 and tg_token:
+        try:
+            telegram_send(tg_token, chat_id,
+                          f"✅ <b>Deal Sniper attivo</b>\nDal {hb['since']}: {hb['runs']} giri, "
+                          f"{hb['calls']} ricerche eBay, {hb['alerts']} occasioni segnalate.")
+            hb = {"sent": today, "since": now.strftime("%d/%m %H:%M"), "runs": 0, "calls": 0, "alerts": 0}
+        except Exception as e:
+            print(f"[!] heartbeat: {e}", file=sys.stderr)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(hb, f)
 
 
 if __name__ == "__main__":
