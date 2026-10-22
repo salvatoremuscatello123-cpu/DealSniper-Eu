@@ -16,6 +16,7 @@ Opzioni:
 import base64
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -91,6 +92,10 @@ def search(token, marketplace, product, max_total, cfg):
         return []
 
 
+SINGLE_HINTS = re.compile(r"\b\d{1,3}/\d{1,4}\b|(?<!\d)/\d{1,4}\b|\bauto(graph)?\b|\bpsa\b|\bbgs\b|\bcgc\b|\bsgc\b|\brookie\b|\brc\b|#|\brefractor\b|\bparallel\b|\bpatch\b|\brelic\b")
+PACK_ONLY = re.compile(r"\b(1|one|single|einzel\w*|singol\w*)\s*(x\s*)?(pack|packung|bustina|booster)\b|\bhobby pack\b|\bpack only\b")
+
+
 def evaluate(item, product, cfg):
     """Ritorna un dict con l'occasione, oppure None se va scartata."""
     title = item.get("title", "")
@@ -98,6 +103,8 @@ def evaluate(item, product, cfg):
     excl = [w.lower() for w in cfg.get("global_exclude", []) + product.get("exclude", [])]
     if any(w in low for w in excl):
         return None
+    if SINGLE_HINTS.search(low) or PACK_ONLY.search(low):
+        return None  # carta singola o pacchetto singolo, non il box
     must = [w.lower() for w in product.get("must_include", [])]
     if must and not all(w in low for w in must):
         return None
@@ -126,6 +133,8 @@ def evaluate(item, product, cfg):
     threshold = product.get("threshold", cfg["threshold"])
     if total > value * (1 - threshold):
         return None
+    if total < value * cfg.get("min_price_ratio", 0.35):
+        return None  # troppo economico per essere il box: pacchetto, carta o annuncio sospetto
 
     end = item.get("itemEndDate")
     if auction and end:
