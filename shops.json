@@ -76,12 +76,11 @@
   ],
   "rules": [
     {
-      "name": "Esclusive Topps (Gold / Showtime / Sapphire / Now)",
+      "name": "Esclusive Topps in box (Gold / Showtime / Sapphire)",
       "any_of": [
         "topps gold",
         "showtime",
         "sapphire",
-        "topps now",
         "printed to order"
       ],
       "exclude": [
@@ -89,8 +88,7 @@
         "singola"
       ],
       "alert_new": true,
-      "alert_restock": true,
-      "box_only": false
+      "alert_restock": true
     },
     {
       "name": "Topps Chrome F1 2026 Hobby",
@@ -347,5 +345,6 @@
       "max_price": 249,
       "alert_restock": true
     }
-  ]
+  ],
+  "max_alerts_per_run": 8
 }

@@ -50,7 +50,7 @@ def fetch_catalog(base, max_pages):
 
 
 BOX_WORDS = ["box", "boxes", "blaster", "hanger", "mega", "tin", "display", "hobby", "jumbo", "fat pack", "value", "case"]
-SINGLE_HINTS = re.compile(r"\b\d{1,3}/\d{1,4}\b|\bauto(graph)?\b|\bpsa\b|\bbgs\b|\bcgc\b|\brookie\b|#")
+SINGLE_HINTS = re.compile(r"\b\d{1,3}/\d{1,4}\b|(?<!\d)/\d{1,4}\b|\bauto(graph)?\b|\bpsa\b|\bbgs\b|\bcgc\b|\bsgc\b|\brookie\b|\brc\b|#|\brefractor\b|\bparallel\b|\bvariation\b|\binsert\b|\bpatch\b|\brelic\b|\bsingle card\b|\bcarta singola\b")
 
 
 def match(title, rule, global_exclude):
@@ -112,9 +112,10 @@ def main():
     variants = state.setdefault("variants", {})   # id -> {"a": available, "p": price}
     shop_status = state.setdefault("shops", {})
 
-    alerts, report = [], []
+    alerts, report, new_shops = [], [], []
     for shop in cfg["shops"]:
         name, base = shop["name"], shop["url"]
+        new_shop = base not in shop_status  # negozio mai letto: prima memorizza in silenzio
         if shop_status.get(base) == "not_shopify" and not first_run:
             continue
         try:
@@ -156,20 +157,29 @@ def main():
                         reason = "🔁 Tornato disponibile"
                 elif avail and cheap and price < old["p"] - 0.01:
                     reason = f"📉 Prezzo sceso (era {old['p']:.2f} €)"
-                if first_run:
+                if first_run or new_shop:
                     reason = None  # al primo giro memorizza tutto; avvisa solo per i prezzi già sotto soglia
                 if reason or (first_run and avail and cheap):
                     alerts.append((rule["name"], reason or "✅ Disponibile sotto soglia", name, vtitle, price, max_price, url))
         report.append(f"✅ {name}: {len(catalog)} prodotti letti, {n_match} che ti interessano")
+        if new_shop and not first_run:
+            new_shops.append(f"{name} ({n_match} prodotti che ti interessano)")
 
     if first_run:
         tg(token, chat_id, "🛒 <b>Monitor negozi attivo</b>\n" + "\n".join(esc(r) for r in report) +
            f"\nDisponibili sotto soglia adesso: {len(alerts)}" + (" (ti mando i primi 10)" if len(alerts) > 10 else ""), dry)
         alerts = alerts[:10]
+    max_alerts = cfg.get("max_alerts_per_run", 8)
+    if not first_run and new_shops:
+        tg(token, chat_id, "➕ Negozi aggiunti al monitor: " + ", ".join(esc(n) for n in new_shops), dry)
+    extra = len(alerts) - max_alerts
+    alerts = alerts[:max_alerts]
     for rname, reason, shop, title, price, maxp, url in alerts:
         soglia = f" · soglia {maxp:.0f} €" if maxp is not None else ""
         tg(token, chat_id, f"{reason} — <b>{esc(rname)}</b>\n🏪 {esc(shop)}\n{esc(title)}\n💶 <b>{price:.2f} €</b>{soglia}\n{url}", dry)
 
+    if extra > 0:
+        tg(token, chat_id, f"… e altri {extra} avvisi non inviati per non intasare la chat.", dry)
     print("\n".join(report), f"\nAvvisi inviati: {len(alerts)}")
     if not dry:
         cutoff = time.time() - 60 * 86400
