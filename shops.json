@@ -52,6 +52,26 @@
     {
       "name": "ShopUScards",
       "url": "https://shopuscards.eu"
+    },
+    {
+      "name": "Card Culture by Lewis Hamilton (DE/NL)",
+      "url": "https://www.cardculture.com"
+    },
+    {
+      "name": "DutchBreakers (NL)",
+      "url": "https://dutchbreakers.com"
+    },
+    {
+      "name": "Break Machine (IT)",
+      "url": "https://breakmachine.it"
+    },
+    {
+      "name": "Dennis the Ripper (DE)",
+      "url": "https://www.dennistheripper.de"
+    },
+    {
+      "name": "American Sportstore (NL)",
+      "url": "https://american-sportstore.com"
     }
   ],
   "rules": [

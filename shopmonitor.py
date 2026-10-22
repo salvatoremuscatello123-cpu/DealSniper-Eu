@@ -8,6 +8,7 @@ Variabili: TELEGRAM_BOT_TOKEN (obbligatoria), TELEGRAM_CHAT_ID (facoltativa).
 Opzione: --dry-run (stampa invece di inviare).
 """
 import json
+import re
 import os
 import sys
 import time
@@ -48,13 +49,16 @@ def fetch_catalog(base, max_pages):
     return products
 
 
-BOX_WORDS = ["box", "blaster", "hanger", "mega", "tin", "display", "hobby", "jumbo", "fat pack", "value", "case"]
+BOX_WORDS = ["box", "boxes", "blaster", "hanger", "mega", "tin", "display", "hobby", "jumbo", "fat pack", "value", "case"]
+SINGLE_HINTS = re.compile(r"\b\d{1,3}/\d{1,4}\b|\bauto(graph)?\b|\bpsa\b|\bbgs\b|\bcgc\b|\brookie\b|#")
 
 
 def match(title, rule, global_exclude):
     low = title.lower()
-    if rule.get("box_only", True) and not any(w in low for w in BOX_WORDS):
+    if rule.get("box_only", True) and not any(re.search(rf"\b{re.escape(w)}\b", low) for w in BOX_WORDS):
         return False  # salta le carte singole
+    if rule.get("box_only", True) and SINGLE_HINTS.search(low):
+        return False  # numerate (12/99), autografi, gradate: sono carte singole
     if any(w.lower() in low for w in global_exclude + rule.get("exclude", [])):
         return False
     for key in ("any_of", "any_of_2"):
