@@ -61,21 +61,23 @@ def money(obj):
         return None
 
 
-def search(token, marketplace, product, max_total, cfg):
+def search(token, marketplace, product, max_total, cfg, buying="FIXED_PRICE|AUCTION", sort="newlyListed", limit=None):
     filters = [
         f"deliveryCountry:{cfg['delivery_country']}",
-        "buyingOptions:{FIXED_PRICE|AUCTION}",
-        f"price:[..{int(max_total)}]",
+        "buyingOptions:{" + buying + "}",
         "priceCurrency:EUR",
     ]
+    if max_total:
+        filters.append(f"price:[..{int(max_total)}]")
     if product.get("condition_new", True):
         filters.append("conditions:{NEW}")
     params = {
         "q": product["query"],
         "filter": ",".join(filters),
-        "sort": "newlyListed",
-        "limit": str(cfg.get("results_per_search", 50)),
+        "limit": str(limit or cfg.get("results_per_search", 50)),
     }
+    if sort:
+        params["sort"] = sort
     if product.get("category_id"):
         params["category_ids"] = str(product["category_id"])
     url = SEARCH_URL + "?" + urllib.parse.urlencode(params)
@@ -83,7 +85,6 @@ def search(token, marketplace, product, max_total, cfg):
         "Authorization": f"Bearer {token}",
         "X-EBAY-C-MARKETPLACE-ID": marketplace,
         "X-EBAY-C-ENDUSERCTX": f"contextualLocation=country={cfg['delivery_country']},zip={cfg['delivery_zip']}",
-        "Accept-Language": "it-IT",
     }
     try:
         return http("GET", url, headers).get("itemSummaries", [])
@@ -96,8 +97,8 @@ SINGLE_HINTS = re.compile(r"\b\d{1,3}/\d{1,4}\b|(?<!\d)/\d{1,4}\b|\bauto(graph)?
 PACK_ONLY = re.compile(r"\b(1|one|single|einzel\w*|singol\w*)\s*(x\s*)?(pack|packung|bustina|booster)\b|\bhobby pack\b|\bpack only\b")
 
 
-def evaluate(item, product, cfg):
-    """Ritorna un dict con l'occasione, oppure None se va scartata."""
+def parse(item, product, cfg):
+    """Annuncio valido per questo prodotto -> (title, country, auction, price, ship, ship_known, total), altrimenti None."""
     title = item.get("title", "")
     low = title.lower()
     excl = [w.lower() for w in cfg.get("global_exclude", []) + product.get("exclude", [])]
@@ -128,8 +129,15 @@ def evaluate(item, product, cfg):
     if not ship_known:
         ship = cfg.get("default_shipping_eur", 10)
 
-    total = price[0] + ship
-    value = product["value_eur"]
+    return title, country, auction, price[0], ship, ship_known, price[0] + ship
+
+
+def evaluate(item, product, cfg, value):
+    """Ritorna un dict con l'occasione, oppure None se va scartata."""
+    parsed = parse(item, product, cfg)
+    if not parsed:
+        return None
+    title, country, auction, price, ship, ship_known, total = parsed
     threshold = product.get("threshold", cfg["threshold"])
     if total > value * (1 - threshold):
         return None
@@ -150,7 +158,7 @@ def evaluate(item, product, cfg):
         "id": item.get("itemId"),
         "title": title,
         "url": item.get("itemWebUrl"),
-        "price": price[0],
+        "price": price,
         "ship": ship,
         "ship_known": ship_known,
         "total": total,
@@ -164,11 +172,41 @@ def evaluate(item, product, cfg):
     }
 
 
+MARKET = os.path.join(HERE, "state", "market.json")
+
+
+def load_market():
+    try:
+        with open(MARKET) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def compute_market(token, product, cfg):
+    """Valore di mercato EU = mediana (senza estremi) dei Compralo Subito attivi, prezzo + spedizione, venditori UE."""
+    totals = []
+    for mkt in cfg["marketplaces"]:
+        for item in search(token, mkt, product, None, cfg, buying="FIXED_PRICE", sort=None, limit=100):
+            parsed = parse(item, product, cfg)
+            if parsed:
+                totals.append(parsed[6])
+    totals.sort()
+    n = len(totals)
+    if n < cfg.get("market_min_listings", 5):
+        return None, n
+    cut = n // 10
+    core = totals[cut:n - cut] or totals
+    mid = len(core) // 2
+    median = core[mid] if len(core) % 2 else (core[mid - 1] + core[mid]) / 2
+    return round(median, 2), n
+
+
 def fmt(d):
     lines = [f"🎯 <b>{esc(d['product'])}</b>",
              esc(d["title"]),
              f"💶 {d['price']:.2f} € + {d['ship']:.2f} € sped.{'' if d['ship_known'] else ' (stima)'} = <b>{d['total']:.2f} €</b>",
-             f"📉 Valore EU {d['value']:.0f} € → <b>-{d['discount']*100:.0f}%</b> · venditore {d['country']}"]
+             f"📉 Valore EU {d['value']:.0f} € ({d.get('value_src', 'manuale')}) → <b>-{d['discount']*100:.0f}%</b> · venditore {d['country']}"]
     if d["auction"]:
         end = d["end"] or "?"
         try:
@@ -232,12 +270,55 @@ def main():
     seen = load_state()
     first_run = not seen and not dry
     found, calls = [], 0
+
+    # valori di mercato automatici, aggiornati ogni N ore
+    market = load_market()
+    refresh_h = cfg.get("market_refresh_hours", 6)
+    changes = []
+    if cfg.get("auto_value", True) and time.time() - market.get("_ts", 0) > refresh_h * 3600:
+        for p in [p for p in cfg["products"] if p.get("enabled", True)]:
+            val, n = compute_market(token, p, cfg)
+            calls += len(cfg["marketplaces"])
+            old = (market.get(p["name"]) or {}).get("value")
+            if val is not None:
+                manual = p["value_eur"]
+                lo, hi = (0.25, 4.0) if p.get("value_guess") else (0.4, 2.0)
+                val = min(max(val, manual * lo), manual * hi)  # protezione contro dati anomali
+                market[p["name"]] = {"value": val, "n": n, "ts": time.time()}
+                if old and abs(val - old) / old >= 0.10:
+                    changes.append(f"{'📈' if val > old else '📉'} {p['name']}: {old:.0f} → <b>{val:.0f} €</b> ({n} annunci)")
+            print(f"Mercato {p['name']}: {val} da {n} annunci")
+        had_market = "_ts" in market
+        market["_ts"] = time.time()
+        if not dry:
+            os.makedirs(os.path.dirname(MARKET), exist_ok=True)
+            with open(MARKET, "w") as f:
+                json.dump(market, f)
+        if tg_token and not dry and not had_market:
+            lines = [f"• {p['name']}: <b>{market[p['name']]['value']:.0f} €</b> ({market[p['name']]['n']} annunci)"
+                     if p["name"] in market else f"• {p['name']}: {p['value_eur']:.0f} € (manuale, pochi annunci)"
+                     for p in cfg["products"] if p.get("enabled", True)]
+            telegram_send(tg_token, chat_id, "📊 <b>Valori di mercato EU calcolati</b> (mediana Compralo Subito IT+DE, spedizione inclusa)\n" + "\n".join(lines))
+        elif changes and tg_token and not dry:
+            telegram_send(tg_token, chat_id, "📊 <b>Valori di mercato aggiornati</b>\n" + "\n".join(changes))
+
+    always = cfg.get("marketplaces_always", cfg["marketplaces"][:1])
+    others = [m for m in cfg["marketplaces"] if m not in always]
+    run_mkts = always + ([others[int(time.time() // 900) % len(others)]] if others else [])
+    print("Siti di questo giro:", ", ".join(run_mkts))
     for p in products:
-        max_total = p["value_eur"] * (1 - p.get("threshold", cfg["threshold"]))
-        for mkt in cfg["marketplaces"]:
+        info = market.get(p["name"]) if cfg.get("auto_value", True) else None
+        if not info and p.get("value_guess"):
+            continue  # valore solo stimato: niente avvisi finché il mercato non è calcolato
+        value = info["value"] if info else p["value_eur"]
+        src = f"mercato, {info['n']} annunci" if info else "manuale"
+        max_total = value * (1 - p.get("threshold", cfg["threshold"]))
+        for mkt in (run_mkts if p.get("hot") else always):
             calls += 1
             for item in search(token, mkt, p, max_total, cfg):
-                d = evaluate(item, p, cfg)
+                d = evaluate(item, p, cfg, value)
+                if d:
+                    d["value_src"] = src
                 if d and d["id"] not in seen:
                     seen[d["id"]] = time.time()
                     found.append(d)
@@ -246,10 +327,9 @@ def main():
     found.sort(key=lambda d: -d["discount"])
     if first_run and tg_token:
         telegram_send(tg_token, chat_id,
-                      f"✅ Deal Sniper EU attivo. Monitoro {len(products)} prodotti su {', '.join(cfg['marketplaces'])}. "
-                      f"Annunci già online sotto soglia: {len(found)}"
-                      f"{' (ti mando i 5 migliori)' if len(found) > 5 else ''}. Da ora ti scrivo solo per quelli nuovi.")
-    to_send = found[:5] if first_run else found
+                      f"✅ Deal Sniper EU attivo. Monitoro {len(products)} prodotti su {len(cfg['marketplaces'])} siti eBay UE. "
+                      f"Annunci già online sotto soglia: {len(found)}. Da ora ti scrivo solo per quelli nuovi.")
+    to_send = found
     for d in to_send:
         text = fmt(d)
         if dry or not tg_token:

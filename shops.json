@@ -1,5 +1,5 @@
 {
-  "_note": "Regole: il titolo del prodotto deve contenere TUTTE le parole di must_include e ALMENO UNA di any_of (se presente), nessuna di exclude. max_price = prezzo massimo per l'avviso 'sotto soglia'. alert_restock = avvisa quando torna disponibile anche sopra soglia. alert_new = avvisa per ogni nuovo prodotto (per i drop di esclusive). any_of_2 = secondo gruppo: serve almeno una parola anche da questo. box_only (default true) = considera solo box/confezioni, non carte singole. max_alerts_per_run: 0 = nessun limite.",
+  "_note": "Regole: il titolo del prodotto deve contenere TUTTE le parole di must_include e ALMENO UNA di any_of (se presente), nessuna di exclude. max_price = prezzo massimo per l'avviso 'sotto soglia'. alert_restock = avvisa quando torna disponibile anche sopra soglia. alert_new = avvisa per ogni nuovo prodotto (per i drop di esclusive). any_of_2 = secondo gruppo: serve almeno una parola anche da questo. box_only (default true) = considera solo box/confezioni, non carte singole. max_alerts_per_run: 0 = nessun limite. market = nome del prodotto nel Deal Sniper: la soglia diventa valore di mercato eBay UE x (1 - market_threshold); max_price resta come riserva.",
   "max_pages": 8,
   "global_exclude": [
     "sleeve",
@@ -76,21 +76,6 @@
   ],
   "rules": [
     {
-      "name": "Esclusive Topps in box (Gold / Showtime / Sapphire)",
-      "any_of": [
-        "topps gold",
-        "showtime",
-        "sapphire",
-        "printed to order"
-      ],
-      "exclude": [
-        "single",
-        "singola"
-      ],
-      "alert_new": true,
-      "alert_restock": true
-    },
-    {
       "name": "Topps Chrome F1 2026 Hobby",
       "must_include": [
         "chrome",
@@ -106,23 +91,16 @@
         "mega",
         "value",
         "blaster",
-        "case"
+        "case",
+        "hanger",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
       ],
       "max_price": 560,
-      "alert_restock": true
-    },
-    {
-      "name": "Topps Chrome F1 2026 Mega",
-      "must_include": [
-        "chrome",
-        "2026",
-        "mega"
-      ],
-      "any_of": [
-        "f1",
-        "formula"
-      ],
-      "max_price": 170
+      "alert_restock": true,
+      "market": "Topps Chrome F1 2026 Hobby"
     },
     {
       "name": "Topps Chrome UCC 2025-26 Hobby",
@@ -141,7 +119,15 @@
         "case",
         "lite",
         "jumbo",
-        "sapphire"
+        "sapphire",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
       ],
       "max_price": 200,
       "alert_restock": true,
@@ -149,54 +135,8 @@
         "2025",
         "25/26",
         "25-26"
-      ]
-    },
-    {
-      "name": "Topps Chrome UCC 2025-26 Value/Blaster",
-      "must_include": [
-        "chrome"
       ],
-      "any_of": [
-        "ucc",
-        "uefa",
-        "club competitions"
-      ],
-      "exclude": [
-        "2024",
-        "2023",
-        "case",
-        "hobby"
-      ],
-      "max_price": 40,
-      "alert_restock": true,
-      "any_of_2": [
-        "blaster",
-        "value"
-      ]
-    },
-    {
-      "name": "Topps Chrome UCC 2025-26 Hanger",
-      "must_include": [
-        "chrome",
-        "hanger"
-      ],
-      "any_of": [
-        "ucc",
-        "uefa",
-        "club competitions"
-      ],
-      "exclude": [
-        "2024",
-        "2023",
-        "case"
-      ],
-      "max_price": 19,
-      "alert_restock": true,
-      "any_of_2": [
-        "2025",
-        "25/26",
-        "25-26"
-      ]
+      "market": "Topps Chrome UCC 2025-26 Hobby"
     },
     {
       "name": "Topps UCC Flagship 2025-26 Hobby",
@@ -218,40 +158,18 @@
         "showtime",
         "2024",
         "2023",
-        "case"
-      ],
-      "max_price": 100
-    },
-    {
-      "name": "Topps Merlin UCC Hobby",
-      "must_include": [
-        "merlin",
-        "hobby"
-      ],
-      "exclude": [
         "case",
-        "2023",
-        "2022"
-      ],
-      "max_price": 120,
-      "alert_restock": true
-    },
-    {
-      "name": "Topps Merlin UCC Blaster",
-      "must_include": [
-        "merlin"
-      ],
-      "any_of": [
         "blaster",
-        "value"
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
       ],
-      "exclude": [
-        "case",
-        "2023",
-        "2022",
-        "hobby"
-      ],
-      "max_price": 35
+      "max_price": 100,
+      "market": "Topps UCC Flagship 2025-26 Hobby"
     },
     {
       "name": "Topps Chrome Black NBA 2025-26",
@@ -264,30 +182,19 @@
         "basketball"
       ],
       "exclude": [
-        "case"
+        "case",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
       ],
       "max_price": 370,
-      "alert_restock": true
-    },
-    {
-      "name": "Topps NBA 2025-26 Mega/Retail",
-      "must_include": [
-        "topps"
-      ],
-      "any_of": [
-        "nba",
-        "basketball"
-      ],
-      "exclude": [
-        "case",
-        "black"
-      ],
-      "max_price": 55,
-      "any_of_2": [
-        "mega",
-        "retail",
-        "fat pack"
-      ]
+      "alert_restock": true,
+      "market": "Topps Chrome Black NBA 2025-26 Hobby"
     },
     {
       "name": "Topps Chrome Tennis 2026 Hobby",
@@ -297,26 +204,19 @@
         "hobby"
       ],
       "exclude": [
-        "case"
+        "case",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
       ],
       "max_price": 160,
-      "alert_restock": true
-    },
-    {
-      "name": "Topps Chrome Tennis 2026 Blaster/Value",
-      "must_include": [
-        "tennis",
-        "2026"
-      ],
-      "any_of": [
-        "blaster",
-        "value"
-      ],
-      "exclude": [
-        "case",
-        "hobby"
-      ],
-      "max_price": 30
+      "alert_restock": true,
+      "market": "Topps Chrome Tennis 2026 Hobby"
     },
     {
       "name": "Panini Obsidian Soccer",
@@ -329,9 +229,18 @@
         "fifa"
       ],
       "exclude": [
-        "case"
+        "case",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
       ],
-      "max_price": 400
+      "max_price": 400,
+      "market": "Panini Obsidian Soccer 2025-26 Hobby"
     },
     {
       "name": "Topps Premier League Gold",
@@ -340,11 +249,364 @@
         "premier"
       ],
       "exclude": [
-        "case"
+        "case",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
       ],
       "max_price": 249,
+      "alert_restock": true,
+      "market": "Topps Gold Premier League 2025-26 Hobby"
+    },
+    {
+      "name": "Topps Chrome UCC Sapphire",
+      "must_include": [
+        "sapphire"
+      ],
+      "any_of": [
+        "ucc",
+        "uefa",
+        "club competitions",
+        "champions"
+      ],
+      "exclude": [
+        "case",
+        "2022",
+        "2021",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Topps Chrome UCC Sapphire 2025-26",
+      "alert_restock": true,
+      "alert_new": true
+    },
+    {
+      "name": "Panini Prizm World Cup 2026 Hobby",
+      "must_include": [
+        "prizm",
+        "hobby"
+      ],
+      "any_of": [
+        "world cup",
+        "fifa"
+      ],
+      "exclude": [
+        "case",
+        "choice",
+        "breakaway",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Panini Prizm FIFA World Cup 2026 Hobby",
+      "alert_restock": true
+    },
+    {
+      "name": "Panini Select Soccer Hobby",
+      "must_include": [
+        "select",
+        "hobby"
+      ],
+      "any_of": [
+        "soccer",
+        "fifa",
+        "calcio",
+        "football"
+      ],
+      "exclude": [
+        "case",
+        "basketball",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Panini Select Soccer Hobby"
+    },
+    {
+      "name": "Panini Prizm Basketball Hobby",
+      "must_include": [
+        "prizm",
+        "hobby"
+      ],
+      "any_of": [
+        "basketball",
+        "nba"
+      ],
+      "exclude": [
+        "case",
+        "choice",
+        "fotl",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Panini Prizm Basketball 2024-25 Hobby"
+    },
+    {
+      "name": "Panini Select Basketball Hobby",
+      "must_include": [
+        "select",
+        "hobby"
+      ],
+      "any_of": [
+        "basketball",
+        "nba"
+      ],
+      "exclude": [
+        "case",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Panini Select Basketball 2024-25 Hobby"
+    },
+    {
+      "name": "Topps Chrome Star Wars Hobby",
+      "must_include": [
+        "star wars",
+        "hobby"
+      ],
+      "exclude": [
+        "case",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Topps Chrome Star Wars Hobby"
+    },
+    {
+      "name": "Topps Chrome Marvel Hobby",
+      "must_include": [
+        "marvel",
+        "hobby"
+      ],
+      "exclude": [
+        "case",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Topps Chrome Marvel Hobby"
+    },
+    {
+      "name": "Topps Chrome Disney Hobby",
+      "must_include": [
+        "disney",
+        "hobby"
+      ],
+      "exclude": [
+        "case",
+        "lorcana",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Topps Chrome Disney Hobby"
+    },
+    {
+      "name": "Disney Lorcana Booster Display",
+      "must_include": [
+        "lorcana"
+      ],
+      "any_of": [
+        "display",
+        "booster box"
+      ],
+      "exclude": [
+        "case",
+        "starter",
+        "trove",
+        "gift"
+      ],
+      "market": "Disney Lorcana Booster Display"
+    },
+    {
+      "name": "Topps Chrome NBA 2025-26 Hobby",
+      "must_include": [
+        "chrome",
+        "hobby"
+      ],
+      "any_of": [
+        "nba",
+        "basketball"
+      ],
+      "any_of_2": [
+        "2025",
+        "25/26",
+        "25-26"
+      ],
+      "exclude": [
+        "case",
+        "black",
+        "sapphire",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Topps Chrome NBA 2025-26 Hobby",
+      "alert_restock": true
+    },
+    {
+      "name": "Topps NBA 2025-26 Hobby",
+      "must_include": [
+        "topps",
+        "hobby"
+      ],
+      "any_of": [
+        "nba",
+        "basketball"
+      ],
+      "any_of_2": [
+        "2025",
+        "25/26",
+        "25-26"
+      ],
+      "exclude": [
+        "case",
+        "chrome",
+        "finest",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "market": "Topps NBA 2025-26 Hobby"
+    },
+    {
+      "name": "Topps Chrome F1 2026 Mega",
+      "must_include": [
+        "chrome",
+        "2026",
+        "mega"
+      ],
+      "any_of": [
+        "f1",
+        "formula"
+      ],
+      "exclude": [
+        "case",
+        "blaster",
+        "hanger",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed",
+        "hobby"
+      ],
+      "max_price": 130,
+      "market": "Topps Chrome F1 2026 Mega Box",
+      "alert_restock": true
+    },
+    {
+      "name": "Topps NBA 2025-26 Mega",
+      "must_include": [
+        "topps",
+        "mega"
+      ],
+      "any_of": [
+        "nba",
+        "basketball"
+      ],
+      "any_of_2": [
+        "2025",
+        "25/26",
+        "25-26"
+      ],
+      "exclude": [
+        "case",
+        "black",
+        "blaster",
+        "hanger",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed",
+        "hobby"
+      ],
+      "max_price": 55,
+      "market": "Topps NBA 2025-26 Mega Box"
+    },
+    {
+      "name": "Esclusive Topps in box (Gold / Showtime / Sapphire)",
+      "any_of": [
+        "topps gold",
+        "showtime",
+        "sapphire",
+        "printed to order"
+      ],
+      "exclude": [
+        "single",
+        "singola",
+        "blaster",
+        "hanger",
+        "mega",
+        "value",
+        "retail",
+        "fat pack",
+        "cello",
+        "gravity feed"
+      ],
+      "alert_new": true,
       "alert_restock": true
     }
   ],
-  "max_alerts_per_run": 0
+  "max_alerts_per_run": 0,
+  "market_threshold": 0.1
 }
