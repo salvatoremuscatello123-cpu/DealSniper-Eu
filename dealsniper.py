@@ -36,10 +36,23 @@ EU = {"AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "H
       "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"}
 
 
-def http(method, url, headers=None, data=None, timeout=30):
-    req = urllib.request.Request(url, data=data, headers=headers or {}, method=method)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode("utf-8"))
+def http(method, url, headers=None, data=None, timeout=30, retries=3):
+    """Richiesta con ritentativi: un timeout o una connessione caduta non fermano il programma."""
+    for attempt in range(retries):
+        req = urllib.request.Request(url, data=data, headers=headers or {}, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 502, 503, 504) and attempt < retries - 1:
+                time.sleep(3 * (attempt + 1))
+                continue
+            raise
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError):
+            if attempt < retries - 1:
+                time.sleep(3 * (attempt + 1))
+                continue
+            raise
 
 
 def ebay_token(cid, secret):
@@ -90,6 +103,9 @@ def search(token, marketplace, product, max_total, cfg, buying="FIXED_PRICE|AUCT
         return http("GET", url, headers).get("itemSummaries", [])
     except urllib.error.HTTPError as e:
         print(f"[!] {marketplace} '{product['name']}': HTTP {e.code} {e.read()[:300]!r}", file=sys.stderr)
+        return []
+    except Exception as e:  # rete instabile: salta questa ricerca, continua con le altre
+        print(f"[!] {marketplace} '{product['name']}': {e}", file=sys.stderr)
         return []
 
 
@@ -234,6 +250,13 @@ def telegram_chat_id(token):
 
 
 def telegram_send(token, chat_id, text):
+    try:
+        _telegram_send(token, chat_id, text)
+    except Exception as e:
+        print(f"[!] Telegram: {e}", file=sys.stderr)
+
+
+def _telegram_send(token, chat_id, text):
     body = urllib.parse.urlencode({"chat_id": chat_id, "text": text, "parse_mode": "HTML",
                                    "disable_web_page_preview": "true"}).encode()
     http("POST", f"https://api.telegram.org/bot{token}/sendMessage",
