@@ -19,6 +19,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.path.join(HERE, "shops.json")
 STATE = os.path.join(HERE, "state", "shops.json")
+MARKET = os.path.join(HERE, "state", "market.json")
 UA = {"User-Agent": "Mozilla/5.0 (personal stock monitor)", "Accept": "application/json"}
 
 
@@ -110,6 +111,11 @@ def main():
     except (FileNotFoundError, json.JSONDecodeError):
         state = {}
     first_run = not state
+    try:
+        market = json.load(open(MARKET))
+    except (FileNotFoundError, json.JSONDecodeError):
+        market = {}
+    print(f"Valori di mercato disponibili: {len([k for k in market if not k.startswith('_')])}")
     variants = state.setdefault("variants", {})   # id -> {"a": available, "p": price}
     shop_status = state.setdefault("shops", {})
 
@@ -148,12 +154,18 @@ def main():
                 variants[vid] = {"a": avail, "p": price, "t": time.time()}
                 vtitle = title if v.get("title") in (None, "Default Title") else f"{title} – {v['title']}"
                 max_price = rule.get("max_price")
+                minfo = market.get(rule.get("market", ""))
+                disc = cfg.get("market_threshold", 0.05)
+                if minfo:
+                    max_price = round(minfo["value"] * (1 - disc), 2)
+                elif max_price is not None:
+                    max_price = round(max_price * (1 - disc), 2)  # valore manuale: serve comunque uno sconto
                 vname = (v.get("title") or "").lower()
                 if rule.get("box_only", True) and PACK_RE.search(vname) and not re.search(r"\bbox\b|\bdisplay\b|\bcase\b", vname):
                     continue  # variante "singolo pacchetto" di un box: non confrontarla col prezzo del box
                 if max_price is not None and price < max_price * cfg.get("min_price_ratio", 0.35):
                     continue  # prezzo troppo basso per essere il box: quasi certamente un pacchetto o una carta
-                cheap = max_price is not None and price <= max_price
+                cheap = max_price is not None and price < max_price
                 reason = None
                 if old is None:
                     if avail and (cheap or rule.get("alert_new", False)):
@@ -166,7 +178,7 @@ def main():
                 if first_run or new_shop:
                     reason = None  # al primo giro memorizza tutto; avvisa solo per i prezzi già sotto soglia
                 if reason or (first_run and avail and cheap):
-                    alerts.append((rule["name"], reason or "✅ Disponibile sotto soglia", name, vtitle, price, max_price, url))
+                    alerts.append((rule["name"], reason or "✅ Disponibile sotto soglia", name, vtitle, price, max_price, url, minfo["value"] if minfo else None))
         report.append(f"✅ {name}: {len(catalog)} prodotti letti, {n_match} che ti interessano")
         if new_shop and not first_run:
             new_shops.append(f"{name} ({n_match} prodotti che ti interessano)")
@@ -181,8 +193,12 @@ def main():
     if max_alerts:  # 0 = nessun limite
         extra = len(alerts) - max_alerts
         alerts = alerts[:max_alerts]
-    for rname, reason, shop, title, price, maxp, url in alerts:
+    for rname, reason, shop, title, price, maxp, url, mval in alerts:
         soglia = f" · soglia {maxp:.0f} €" if maxp is not None else ""
+        if mval:
+            soglia += f" (mercato eBay UE {mval:.0f} €, -{(1 - price / mval) * 100:.0f}%)"
+        elif maxp is not None:
+            soglia += " (valore manuale, mercato non ancora calcolato)"
         tg(token, chat_id, f"{reason} — <b>{esc(rname)}</b>\n🏪 {esc(shop)}\n{esc(title)}\n💶 <b>{price:.2f} €</b>{soglia}\n{url}", dry)
 
     if extra > 0:
