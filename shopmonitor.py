@@ -100,11 +100,36 @@ def chat_id_from_updates(token):
     raise SystemExit("ERRORE: non trovo la chat. Scrivi 'ciao' al bot su Telegram e rilancia (oppure aggiungi il secret TELEGRAM_CHAT_ID).")
 
 
+def resolve_chat_id(token, lookup):
+    """Chat Telegram: secret TELEGRAM_CHAT_ID -> file salvato in state/ -> getUpdates (che Telegram tiene solo 24 ore).
+    Non blocca mai il programma: se non la trova lo scrive nel log e continua senza messaggi."""
+    env = (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
+    if env:
+        return env
+    path = os.path.join(HERE, "state", "chat_id.txt")
+    try:
+        saved = open(path).read().strip()
+        if saved:
+            return saved
+    except FileNotFoundError:
+        pass
+    if not token:
+        return None
+    try:
+        cid = lookup(token)
+    except BaseException as e:  # anche SystemExit
+        print(f"[!] Chat Telegram non trovata ({e}). Aggiungi il secret TELEGRAM_CHAT_ID o scrivi 'ciao' al bot.", file=sys.stderr)
+        return None
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, "w").write(cid)
+    return cid
+
+
 def main():
     dry = "--dry-run" in sys.argv
     cfg = json.load(open(CONFIG))
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID") or (chat_id_from_updates(token) if token and not dry else None)
+    chat_id = resolve_chat_id(None if dry else token, chat_id_from_updates)
 
     try:
         state = json.load(open(STATE))

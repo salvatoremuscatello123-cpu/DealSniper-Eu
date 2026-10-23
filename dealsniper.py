@@ -278,6 +278,31 @@ def save_state(seen):
         json.dump(seen, f)
 
 
+def resolve_chat_id(token, lookup):
+    """Chat Telegram: secret TELEGRAM_CHAT_ID -> file salvato in state/ -> getUpdates (che Telegram tiene solo 24 ore).
+    Non blocca mai il programma: se non la trova lo scrive nel log e continua senza messaggi."""
+    env = (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
+    if env:
+        return env
+    path = os.path.join(HERE, "state", "chat_id.txt")
+    try:
+        saved = open(path).read().strip()
+        if saved:
+            return saved
+    except FileNotFoundError:
+        pass
+    if not token:
+        return None
+    try:
+        cid = lookup(token)
+    except BaseException as e:  # anche SystemExit
+        print(f"[!] Chat Telegram non trovata ({e}). Aggiungi il secret TELEGRAM_CHAT_ID o scrivi 'ciao' al bot.", file=sys.stderr)
+        return None
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, "w").write(cid)
+    return cid
+
+
 def main():
     dry = "--dry-run" in sys.argv
     only_hot = "--only-hot" in sys.argv
@@ -287,7 +312,7 @@ def main():
 
     token = ebay_token(os.environ["EBAY_CLIENT_ID"], os.environ["EBAY_CLIENT_SECRET"])
     tg_token = os.environ.get("TELEGRAM_BOT_TOKEN")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID") or (telegram_chat_id(tg_token) if tg_token and not dry else None)
+    chat_id = resolve_chat_id(None if dry else tg_token, telegram_chat_id)
 
     seen = load_state()
     first_run = not seen and not dry
