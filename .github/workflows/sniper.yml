@@ -2,8 +2,8 @@ name: Deal Sniper EU
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
-  workflow_dispatch: {}
+    - cron: "*/15 * * * *"   # ogni 15 minuti (resta sotto il limite eBay con 9 siti UE)
+  workflow_dispatch: {}       # pulsante "Run workflow" per lanciarlo a mano
 
 concurrency:
   group: dealsniper
