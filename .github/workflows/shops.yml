@@ -2,7 +2,7 @@ name: Monitor negozi
 
 on:
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    - cron: "7,22,37,52 * * * *"   # ogni 15 minuti
   workflow_dispatch: {}
 
 concurrency:
@@ -22,6 +22,13 @@ jobs:
           path: state
           key: shops-${{ github.run_id }}
           restore-keys: shops-
+
+      - name: Prendi i valori di mercato del Deal Sniper
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: seen-none
+          restore-keys: seen-
 
       - uses: actions/setup-python@v5
         with:
