@@ -230,6 +230,18 @@ def main():
         tg(token, chat_id, f"… e altri {extra} avvisi non inviati per non intasare la chat.", dry)
     print("\n".join(report), f"\nAvvisi inviati: {len(alerts)}")
     if not dry:
+        n_ok = sum(1 for v in shop_status.values() if v == "ok")
+        hb = state.setdefault("hb", {})
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        now = datetime.now(ZoneInfo("Europe/Rome"))
+        hb.setdefault("since", now.strftime("%d/%m %H:%M"))
+        hb["runs"] = hb.get("runs", 0) + 1
+        hb["alerts"] = hb.get("alerts", 0) + len(alerts)
+        if hb.get("sent") != now.strftime("%Y-%m-%d") and now.hour >= 9 and token and chat_id:
+            tg(token, chat_id, f"✅ <b>Monitor negozi attivo</b>\nDal {hb['since']}: {hb['runs']} giri, "
+                               f"{n_ok} negozi leggibili su {len(cfg['shops'])}, {hb['alerts']} avvisi inviati.", dry)
+            state["hb"] = {"sent": now.strftime("%Y-%m-%d"), "since": now.strftime("%d/%m %H:%M"), "runs": 0, "alerts": 0}
         cutoff = time.time() - 60 * 86400
         state["variants"] = {k: v for k, v in variants.items() if v.get("t", 0) > cutoff}
         os.makedirs(os.path.dirname(STATE), exist_ok=True)
